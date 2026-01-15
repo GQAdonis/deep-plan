@@ -1,3 +1,5 @@
+![deep-plan hero](assets/hero.jpeg)
+
 # /deep-plan, a Claude Code plugin
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
@@ -5,8 +7,6 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-
-![deep-plan hero](assets/hero.jpeg)
 
 `/deep-plan` transforms vague feature requests into detailed, production-ready implementation plans through AI-assisted research, stakeholder interviews, and multi-LLM review.
 
