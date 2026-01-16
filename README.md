@@ -8,15 +8,20 @@
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 
+> **Read the story behind this plugin:** [Building /deep-plan: A Claude Code Plugin for Comprehensive Planning](https://pierce-lamb.medium.com/building-deep-plan-a-claude-code-plugin-for-comprehensive-planning-30e0921eb841)
+
 `/deep-plan` transforms vague feature requests into detailed, production-ready implementation plans through AI-assisted research, stakeholder interviews, and multi-LLM review.
 
 `/deep-implement`, it's companion plugin, is currently a WIP (planned using `/deep-plan`)! Coming soon.
 
 This plugin started as an effort to automate the most time-intensive part of my Claude Code workflow that I had previously been doing manually. It is primarily targeted at Claude Code users that don't have strict token constraints, have access to other LLMs (Gemini/OpenAI) and prefer deep planning/plan review before implementation. It's designed to speed up creating production-ready code within Claude Code without sacrificing an understanding of how it works.
 
+## TL;DR
 ```
 /plugin marketplace add piercelamb/deep-plan
 /plugin install deep-plan
+/plugin enable deep-plan
+/deep-plan @planning/auth-spec.md
 ```
 
 ## Table of Contents
@@ -88,7 +93,7 @@ Result: Complete implementation plan reviewed by multiple LLMs, split into chunk
 - Simple bug fixes or one-file changes
 - Requirements are already crystal clear
 - Time pressure prevents thorough planning
-- You want to Ralph Wiggum an implementation
+- You are ready to open the Ralph Wiggum flood gates
 
 ## Quick Start
 
@@ -166,10 +171,20 @@ If you /compact or exit in the middle, `/deep-plan` can recover from the existin
 
 ### Install via Marketplace (Recommended)
 
+**Option A: CLI commands**
 ```
 /plugin marketplace add piercelamb/deep-plan
 /plugin install deep-plan
+/plugin enable deep-plan
 ```
+
+**Option B: Via UI**
+```
+/plugin marketplace add piercelamb/deep-plan
+/plugin install deep-plan
+/plugins
+```
+Then scroll to "Installed", find `deep-plan`, and click "Enable".
 
 ### Manual Installation
 
