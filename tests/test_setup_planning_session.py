@@ -28,7 +28,7 @@ class TestSetupPlanningSession:
             env = os.environ.copy()
             env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
             # Default session ID for tests (tasks written to tmp_path/.claude/tasks/)
-            env["CLAUDE_SESSION_ID"] = "test-session-default"
+            env["DEEP_SESSION_ID"] = "test-session-default"
             env["HOME"] = str(tmp_path)  # Isolate task writes to tmp_path
             if env_overrides:
                 env.update(env_overrides)
@@ -107,7 +107,7 @@ class TestSetupPlanningSession:
         assert output["initial_file"] == str(spec_file)
         # New sessions start at step 6 (codebase research decision)
         assert output["resume_from_step"] == 6
-        # Check for tasks_written (fixture provides CLAUDE_SESSION_ID)
+        # Check for tasks_written (fixture provides DEEP_SESSION_ID)
         assert "tasks_written" in output
         assert output["tasks_written"] > 0  # Should write 21 workflow tasks
 
@@ -289,7 +289,7 @@ END_MANIFEST -->
     # --- Task writing tests ---
 
     def test_writes_tasks_when_session_id_set(self, run_script, tmp_path, monkeypatch):
-        """Should write task files when CLAUDE_SESSION_ID is set."""
+        """Should write task files when DEEP_SESSION_ID is set."""
         spec_file = tmp_path / "spec.md"
         spec_file.write_text("# Spec")
 
@@ -301,7 +301,7 @@ END_MANIFEST -->
         result = run_script(
             str(spec_file),
             env_overrides={
-                "CLAUDE_SESSION_ID": "test-session",
+                "DEEP_SESSION_ID": "test-session",
                 "HOME": str(tmp_path),
             }
         )
@@ -322,7 +322,7 @@ END_MANIFEST -->
 
         # Clear both session ID sources
         result = run_script(str(spec_file), env_overrides={
-            "CLAUDE_SESSION_ID": "",  # Empty to unset
+            "DEEP_SESSION_ID": "",  # Empty to unset
             "CLAUDE_CODE_TASK_LIST_ID": "",  # Empty to unset
         })
 
@@ -564,7 +564,7 @@ class TestSectionTasksIntegration:
             env = os.environ.copy()
             env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
             # Default session ID for tests (tasks written to tmp_path/.claude/tasks/)
-            env["CLAUDE_SESSION_ID"] = "test-session-default"
+            env["DEEP_SESSION_ID"] = "test-session-default"
             env["HOME"] = str(tmp_path)  # Isolate task writes to tmp_path
             if env_overrides:
                 env.update(env_overrides)
@@ -607,7 +607,7 @@ END_MANIFEST -->
 
         result = run_script(
             str(spec_file),
-            env_overrides={"CLAUDE_SESSION_ID": "test-session", "HOME": str(tmp_path)}
+            env_overrides={"DEEP_SESSION_ID": "test-session", "HOME": str(tmp_path)}
         )
 
         assert result.returncode == 0
@@ -653,7 +653,7 @@ END_MANIFEST -->
 
         result = run_script(
             str(spec_file),
-            env_overrides={"CLAUDE_SESSION_ID": "test-session", "HOME": str(tmp_path)}
+            env_overrides={"DEEP_SESSION_ID": "test-session", "HOME": str(tmp_path)}
         )
 
         assert result.returncode == 0
@@ -691,7 +691,7 @@ END_MANIFEST -->
 
         result = run_script(
             str(spec_file),
-            env_overrides={"CLAUDE_SESSION_ID": "test-session", "HOME": str(tmp_path)}
+            env_overrides={"DEEP_SESSION_ID": "test-session", "HOME": str(tmp_path)}
         )
 
         assert result.returncode == 0
@@ -733,7 +733,7 @@ END_MANIFEST -->
 
         result = run_script(
             str(spec_file),
-            env_overrides={"CLAUDE_SESSION_ID": "test-session", "HOME": str(tmp_path)}
+            env_overrides={"DEEP_SESSION_ID": "test-session", "HOME": str(tmp_path)}
         )
 
         assert result.returncode == 0
@@ -775,7 +775,7 @@ END_MANIFEST -->
 
         result = run_script(
             str(spec_file),
-            env_overrides={"CLAUDE_SESSION_ID": "test-session", "HOME": str(tmp_path)}
+            env_overrides={"DEEP_SESSION_ID": "test-session", "HOME": str(tmp_path)}
         )
 
         assert result.returncode == 0
@@ -843,7 +843,7 @@ END_MANIFEST -->
 
         result = run_script(
             str(spec_file),
-            env_overrides={"CLAUDE_SESSION_ID": "test-session", "HOME": str(tmp_path)}
+            env_overrides={"DEEP_SESSION_ID": "test-session", "HOME": str(tmp_path)}
         )
 
         assert result.returncode == 0
@@ -878,7 +878,7 @@ class TestConflictDetection:
             env = os.environ.copy()
             env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
             # Default session ID for tests (tasks written to tmp_path/.claude/tasks/)
-            env["CLAUDE_SESSION_ID"] = "test-session-default"
+            env["DEEP_SESSION_ID"] = "test-session-default"
             env["HOME"] = str(tmp_path)  # Isolate task writes to tmp_path
             if env_overrides:
                 env.update(env_overrides)
@@ -962,7 +962,7 @@ class TestConflictDetection:
         assert output["tasks_written"] == 21  # Workflow tasks written
 
     def test_no_conflict_with_session_id(self, run_script, tmp_path):
-        """Should NOT conflict when using CLAUDE_SESSION_ID (resume scenario)."""
+        """Should NOT conflict when using DEEP_SESSION_ID (resume scenario)."""
         spec_file = tmp_path / "spec.md"
         spec_file.write_text("# Spec")
 
@@ -978,7 +978,7 @@ class TestConflictDetection:
         result = run_script(
             str(spec_file),
             env_overrides={
-                "CLAUDE_SESSION_ID": "sess-123",
+                "DEEP_SESSION_ID": "sess-123",
                 "HOME": str(tmp_path),
             }
         )

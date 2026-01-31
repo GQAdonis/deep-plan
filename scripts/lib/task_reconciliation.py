@@ -7,7 +7,7 @@ operations for Claude to execute.
 
 Key concepts:
 - CLAUDE_CODE_TASK_LIST_ID: User-specified task list for sharing across sessions
-- CLAUDE_SESSION_ID: Auto-captured session ID from SessionStart hook
+- DEEP_SESSION_ID: Auto-captured session ID from SessionStart hook
 - Conflict: Only when CLAUDE_CODE_TASK_LIST_ID is set AND has existing tasks
 - Position-based matching: Tasks are matched by numeric ID (position), NOT by subject
 
@@ -35,7 +35,7 @@ class TaskListSource(StrEnum):
 
     CONTEXT = "context"  # From --session-id arg (hook's additionalContext)
     USER_ENV = "user_env"  # From CLAUDE_CODE_TASK_LIST_ID
-    SESSION = "session"  # From CLAUDE_SESSION_ID env var
+    SESSION = "session"  # From DEEP_SESSION_ID env var
     NONE = "none"  # No task list ID available
 
 
@@ -55,7 +55,7 @@ class TaskListContext:
 
         DEPRECATED: Use from_args_and_env() instead for /clear support.
 
-        Priority: CLAUDE_CODE_TASK_LIST_ID > CLAUDE_SESSION_ID
+        Priority: CLAUDE_CODE_TASK_LIST_ID > DEEP_SESSION_ID
 
         Returns:
             TaskListContext with task_list_id, source, and is_user_specified
@@ -66,7 +66,7 @@ class TaskListContext:
     def from_args_and_env(cls, context_session_id: str | None = None) -> Self:
         """Get task list context from CLI args and environment.
 
-        Priority: --session-id (context) > CLAUDE_CODE_TASK_LIST_ID > CLAUDE_SESSION_ID
+        Priority: --session-id (context) > CLAUDE_CODE_TASK_LIST_ID > DEEP_SESSION_ID
 
         The context_session_id comes from the hook's additionalContext output,
         which Claude passes via --session-id argument. This is the most reliable
@@ -80,7 +80,7 @@ class TaskListContext:
             TaskListContext with task_list_id, source, is_user_specified, and
             session_id_matched diagnostic field
         """
-        env_session_id = os.environ.get("CLAUDE_SESSION_ID")
+        env_session_id = os.environ.get("DEEP_SESSION_ID")
         user_specified = os.environ.get("CLAUDE_CODE_TASK_LIST_ID")
 
         # Track if context and env matched (useful for debugging /clear issues)
@@ -196,7 +196,7 @@ def check_for_conflict(
     """Check if user-specified task list has existing tasks.
 
     IMPORTANT: Conflict detection ONLY applies when CLAUDE_CODE_TASK_LIST_ID
-    is set by the user. If we're using CLAUDE_SESSION_ID and find existing
+    is set by the user. If we're using DEEP_SESSION_ID and find existing
     tasks, that's just a normal resume scenario, not a conflict.
 
     Args:

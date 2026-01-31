@@ -42,8 +42,8 @@ class TestTaskListContextFromEnv:
             assert ctx.is_user_specified is False
 
     def test_only_session_id_set(self):
-        """CLAUDE_SESSION_ID only -> use it, source='session'."""
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "sess-123"}, clear=True):
+        """DEEP_SESSION_ID only -> use it, source='session'."""
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "sess-123"}, clear=True):
             ctx = TaskListContext.from_env()
             assert ctx.task_list_id == "sess-123"
             assert ctx.source == TaskListSource.SESSION
@@ -61,7 +61,7 @@ class TestTaskListContextFromEnv:
         """Both set -> CLAUDE_CODE_TASK_LIST_ID wins."""
         with patch.dict("os.environ", {
             "CLAUDE_CODE_TASK_LIST_ID": "my-project",
-            "CLAUDE_SESSION_ID": "sess-123",
+            "DEEP_SESSION_ID": "sess-123",
         }, clear=True):
             ctx = TaskListContext.from_env()
             assert ctx.task_list_id == "my-project"
@@ -72,7 +72,7 @@ class TestTaskListContextFromEnv:
         """Empty string env vars behave like falsy values in Python."""
         # Note: os.environ.get("KEY") returns "" if KEY="" is set
         # In Python, empty string is falsy, so it falls through
-        with patch.dict("os.environ", {"CLAUDE_CODE_TASK_LIST_ID": "", "CLAUDE_SESSION_ID": "sess-123"}, clear=True):
+        with patch.dict("os.environ", {"CLAUDE_CODE_TASK_LIST_ID": "", "DEEP_SESSION_ID": "sess-123"}, clear=True):
             ctx = TaskListContext.from_env()
             # Empty string is falsy, so it falls through to session
             assert ctx.task_list_id == "sess-123"
@@ -86,7 +86,7 @@ class TestTaskListContextFromArgsAndEnv:
         """--session-id (context) takes precedence over all env vars."""
         with patch.dict("os.environ", {
             "CLAUDE_CODE_TASK_LIST_ID": "user-task-list",
-            "CLAUDE_SESSION_ID": "env-session-123",
+            "DEEP_SESSION_ID": "env-session-123",
         }, clear=True):
             ctx = TaskListContext.from_args_and_env(context_session_id="context-session-456")
             assert ctx.task_list_id == "context-session-456"
@@ -95,14 +95,14 @@ class TestTaskListContextFromArgsAndEnv:
 
     def test_session_id_matched_true_when_same(self):
         """session_id_matched should be True when context and env have same value."""
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "same-session-id"}, clear=True):
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "same-session-id"}, clear=True):
             ctx = TaskListContext.from_args_and_env(context_session_id="same-session-id")
             assert ctx.session_id_matched is True
             assert ctx.source == TaskListSource.CONTEXT
 
     def test_session_id_matched_false_when_different(self):
         """session_id_matched should be False when context and env differ (after /clear)."""
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "old-session-id"}, clear=True):
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "old-session-id"}, clear=True):
             ctx = TaskListContext.from_args_and_env(context_session_id="new-session-id")
             assert ctx.session_id_matched is False
             assert ctx.task_list_id == "new-session-id"
@@ -119,7 +119,7 @@ class TestTaskListContextFromArgsAndEnv:
         """Falls back to CLAUDE_CODE_TASK_LIST_ID when no --session-id."""
         with patch.dict("os.environ", {
             "CLAUDE_CODE_TASK_LIST_ID": "user-task-list",
-            "CLAUDE_SESSION_ID": "env-session",
+            "DEEP_SESSION_ID": "env-session",
         }, clear=True):
             ctx = TaskListContext.from_args_and_env(context_session_id=None)
             assert ctx.task_list_id == "user-task-list"
@@ -127,8 +127,8 @@ class TestTaskListContextFromArgsAndEnv:
             assert ctx.is_user_specified is True
 
     def test_falls_back_to_session_env_when_no_context_or_user(self):
-        """Falls back to CLAUDE_SESSION_ID when no --session-id or user env."""
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "env-session"}, clear=True):
+        """Falls back to DEEP_SESSION_ID when no --session-id or user env."""
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "env-session"}, clear=True):
             ctx = TaskListContext.from_args_and_env(context_session_id=None)
             assert ctx.task_list_id == "env-session"
             assert ctx.source == TaskListSource.SESSION
@@ -143,7 +143,7 @@ class TestTaskListContextFromArgsAndEnv:
 
     def test_from_env_delegates_to_from_args_and_env(self):
         """from_env() should delegate to from_args_and_env(None)."""
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "sess-123"}, clear=True):
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "sess-123"}, clear=True):
             ctx_env = TaskListContext.from_env()
             ctx_args = TaskListContext.from_args_and_env(context_session_id=None)
             assert ctx_env.task_list_id == ctx_args.task_list_id
@@ -688,7 +688,7 @@ class TestReconcileTasksIntegration:
         assert result.operations[0].tool == "TaskCreate"
 
     def test_session_based_new_session(self, tmp_path, monkeypatch):
-        """New session with CLAUDE_SESSION_ID -> all creates, no conflict."""
+        """New session with DEEP_SESSION_ID -> all creates, no conflict."""
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
         expected = [
@@ -696,7 +696,7 @@ class TestReconcileTasksIntegration:
             {"subject": "Task 2", "status": "pending", "description": "Do 2", "activeForm": ""},
         ]
 
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "sess-123"}, clear=True):
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "sess-123"}, clear=True):
             result = reconcile_tasks(tmp_path / "planning", expected)
 
         assert result.success is True
@@ -749,7 +749,7 @@ class TestReconcileTasksIntegration:
             {"subject": "Step 6", "status": "in_progress", "description": "", "activeForm": "Working"},
         ]
 
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "sess-123"}, clear=True):
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "sess-123"}, clear=True):
             result = reconcile_tasks(tmp_path / "planning", expected)
 
         assert result.success is True
@@ -789,7 +789,7 @@ class TestReconcileTasksIntegration:
             for i in range(1, 22)
         ]
 
-        with patch.dict("os.environ", {"CLAUDE_SESSION_ID": "sess-123"}, clear=True):
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "sess-123"}, clear=True):
             result = reconcile_tasks(tmp_path / "planning", expected)
 
         ops = result.operations

@@ -193,7 +193,7 @@ def check_for_conflict(
     """Check if user-specified task list has existing tasks.
 
     Only checks when CLAUDE_CODE_TASK_LIST_ID is explicitly set by user.
-    Session-based task lists (from CLAUDE_SESSION_ID) never conflict -
+    Session-based task lists (from DEEP_SESSION_ID) never conflict -
     existing tasks there are just a resume scenario.
 
     Args:
