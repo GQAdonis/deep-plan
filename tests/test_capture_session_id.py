@@ -49,7 +49,7 @@ class TestCaptureSessionIdHook:
         assert output == {
             "hookSpecificOutput": {
                 "hookEventName": "SessionStart",
-                "additionalContext": "DEEP_PLAN_SESSION_ID=test-session-123",
+                "additionalContext": "DEEP_SESSION_ID=test-session-123",
             }
         }
 
@@ -63,7 +63,7 @@ class TestCaptureSessionIdHook:
 
         assert result == 0
         captured = capsys.readouterr()
-        assert "DEEP_PLAN_SESSION_ID=test-session-222" in captured.out
+        assert "DEEP_SESSION_ID=test-session-222" in captured.out
 
     def test_succeeds_when_claude_env_file_empty_string(self, hook_module, capsys):
         """Should succeed when CLAUDE_ENV_FILE is empty string (bug in Claude Code)."""
@@ -75,7 +75,7 @@ class TestCaptureSessionIdHook:
 
         assert result == 0
         captured = capsys.readouterr()
-        assert "DEEP_PLAN_SESSION_ID=test-session-333" in captured.out
+        assert "DEEP_SESSION_ID=test-session-333" in captured.out
 
     def test_valid_payload_writes_to_env_file(self, tmp_path, hook_module, capsys):
         """Valid JSON with session_id -> writes to CLAUDE_ENV_FILE (secondary)."""
@@ -89,10 +89,10 @@ class TestCaptureSessionIdHook:
         assert result == 0
         # Primary: additionalContext output
         captured = capsys.readouterr()
-        assert "DEEP_PLAN_SESSION_ID=abc-123-def" in captured.out
+        assert "DEEP_SESSION_ID=abc-123-def" in captured.out
         # Secondary: env file
         content = env_file.read_text()
-        assert "export CLAUDE_SESSION_ID=abc-123-def" in content
+        assert "export DEEP_SESSION_ID=abc-123-def" in content
 
     def test_invalid_json_succeeds_silently(self, hook_module, capsys):
         """Invalid JSON -> returns 0, no crash, no output."""
@@ -137,7 +137,7 @@ class TestCaptureSessionIdHook:
 
         content = env_file.read_text()
         assert "EXISTING_VAR=value" in content
-        assert "CLAUDE_SESSION_ID=new-session" in content
+        assert "DEEP_SESSION_ID=new-session" in content
 
     def test_session_id_with_special_characters(self, tmp_path, hook_module, capsys):
         """Session ID with UUID format outputs correctly."""
@@ -151,10 +151,10 @@ class TestCaptureSessionIdHook:
         assert result == 0
         # Check additionalContext output
         captured = capsys.readouterr()
-        assert "DEEP_PLAN_SESSION_ID=550e8400-e29b-41d4-a716-446655440000" in captured.out
+        assert "DEEP_SESSION_ID=550e8400-e29b-41d4-a716-446655440000" in captured.out
         # Check env file
         content = env_file.read_text()
-        assert "CLAUDE_SESSION_ID=550e8400-e29b-41d4-a716-446655440000" in content
+        assert "DEEP_SESSION_ID=550e8400-e29b-41d4-a716-446655440000" in content
 
     def test_payload_with_extra_fields(self, tmp_path, hook_module, capsys):
         """Payload with extra fields still extracts session_id."""
@@ -172,9 +172,9 @@ class TestCaptureSessionIdHook:
 
         assert result == 0
         captured = capsys.readouterr()
-        assert "DEEP_PLAN_SESSION_ID=my-session" in captured.out
+        assert "DEEP_SESSION_ID=my-session" in captured.out
         content = env_file.read_text()
-        assert "CLAUDE_SESSION_ID=my-session" in content
+        assert "DEEP_SESSION_ID=my-session" in content
 
     def test_env_file_write_error_still_outputs_context(self, tmp_path, hook_module, capsys):
         """Write error -> still outputs additionalContext, returns 0."""
@@ -191,12 +191,12 @@ class TestCaptureSessionIdHook:
         # Should succeed and output additionalContext even though env file write failed
         assert result == 0
         captured = capsys.readouterr()
-        assert "DEEP_PLAN_SESSION_ID=my-session" in captured.out
+        assert "DEEP_SESSION_ID=my-session" in captured.out
 
     def test_skips_duplicate_session_id(self, tmp_path, hook_module):
         """If session_id already in file, don't write again (multiple plugins)."""
         env_file = tmp_path / "env"
-        env_file.write_text("export CLAUDE_SESSION_ID=abc-123\n")
+        env_file.write_text("export DEEP_SESSION_ID=abc-123\n")
 
         payload = {"session_id": "abc-123"}
 
@@ -207,7 +207,7 @@ class TestCaptureSessionIdHook:
         assert result == 0
         content = env_file.read_text()
         # Should only appear once (not duplicated)
-        assert content.count("CLAUDE_SESSION_ID=abc-123") == 1
+        assert content.count("DEEP_SESSION_ID=abc-123") == 1
 
     def test_skips_duplicate_transcript_path(self, tmp_path, hook_module):
         """If transcript_path already in file, don't write again."""
@@ -226,5 +226,44 @@ class TestCaptureSessionIdHook:
         assert result == 0
         content = env_file.read_text()
         # Session ID should be added, transcript path should not be duplicated
-        assert "CLAUDE_SESSION_ID=new-session" in content
+        assert "DEEP_SESSION_ID=new-session" in content
         assert content.count("CLAUDE_TRANSCRIPT_PATH=/path/to/transcript.jsonl") == 1
+
+    def test_skips_output_when_deep_session_id_matches(self, hook_module, capsys):
+        """Should not output when DEEP_SESSION_ID already matches session_id."""
+        payload = {"session_id": "test-session-123"}
+
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "test-session-123"}, clear=True):
+            with patch("sys.stdin", StringIO(json.dumps(payload))):
+                result = hook_module.main()
+
+        assert result == 0
+        captured = capsys.readouterr()
+        # Should NOT output additionalContext since it already matches
+        assert captured.out == ""
+
+    def test_outputs_when_deep_session_id_differs(self, hook_module, capsys):
+        """Should output when DEEP_SESSION_ID exists but doesn't match."""
+        payload = {"session_id": "new-session-456"}
+
+        with patch.dict("os.environ", {"DEEP_SESSION_ID": "old-session-123"}, clear=True):
+            with patch("sys.stdin", StringIO(json.dumps(payload))):
+                result = hook_module.main()
+
+        assert result == 0
+        captured = capsys.readouterr()
+        output = json.loads(captured.out)
+        assert output["hookSpecificOutput"]["additionalContext"] == "DEEP_SESSION_ID=new-session-456"
+
+    def test_outputs_when_deep_session_id_not_set(self, hook_module, capsys):
+        """Should output when DEEP_SESSION_ID is not set."""
+        payload = {"session_id": "test-session-789"}
+
+        with patch.dict("os.environ", {}, clear=True):
+            with patch("sys.stdin", StringIO(json.dumps(payload))):
+                result = hook_module.main()
+
+        assert result == 0
+        captured = capsys.readouterr()
+        output = json.loads(captured.out)
+        assert output["hookSpecificOutput"]["additionalContext"] == "DEEP_SESSION_ID=test-session-789"

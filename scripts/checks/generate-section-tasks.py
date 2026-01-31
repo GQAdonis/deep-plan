@@ -111,7 +111,7 @@ def generate_section_tasks(
         return {
             **base_result,
             "success": False,
-            "error": "No CLAUDE_SESSION_ID available. Session hook may not have run.",
+            "error": "No DEEP_SESSION_ID available. Session hook may not have run.",
             "tasks_written": 0,
             "stats": {
                 "total": len(progress["defined_sections"]),

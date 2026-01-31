@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-30
+
+### Changed
+- **Unified session ID** - Changed `DEEP_PLAN_SESSION_ID` to shared `DEEP_SESSION_ID`
+- **Normalized env var** - Changed `CLAUDE_SESSION_ID` to `DEEP_SESSION_ID` in env file writes and all scripts
+- SessionStart hook now checks if `DEEP_SESSION_ID` already matches before outputting
+- Prevents duplicate output when multiple deep-* plugins run together
+
 ## [0.2.0] - 2026-01-30
 
 ### Added

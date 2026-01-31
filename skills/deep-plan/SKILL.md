@@ -120,7 +120,7 @@ Example: /deep-plan @planning/my-feature-spec.md
 
 ### 4. Setup Planning Session
 
-**First, check for session_id in your context.** Look for `DEEP_PLAN_SESSION_ID=xxx`
+**First, check for session_id in your context.** Look for `DEEP_SESSION_ID=xxx`
 which was set by the SessionStart hook. This appears in your context from when
 the session started.
 
@@ -130,10 +130,10 @@ uv run {plugin_root}/scripts/checks/setup-planning-session.py \
   --file "<file_path>" \
   --plugin-root "{plugin_root}" \
   --review-mode "{review_mode}" \
-  --session-id "{DEEP_PLAN_SESSION_ID}"
+  --session-id "{DEEP_SESSION_ID}"
 ```
 
-**IMPORTANT:** If `DEEP_PLAN_SESSION_ID` is in your context, you MUST pass it via
+**IMPORTANT:** If `DEEP_SESSION_ID` is in your context, you MUST pass it via
 `--session-id`. This ensures tasks work correctly after `/clear` commands.
 If it's not in your context, omit `--session-id` (fallback to env var).
 
@@ -377,10 +377,10 @@ Run generate-section-tasks.py to write section tasks directly to disk:
 ```bash
 uv run {plugin_root}/scripts/checks/generate-section-tasks.py \
   --planning-dir "<planning_dir>" \
-  --session-id "{DEEP_PLAN_SESSION_ID}"
+  --session-id "{DEEP_SESSION_ID}"
 ```
 
-**IMPORTANT:** If `DEEP_PLAN_SESSION_ID` is in your context, you MUST pass it via
+**IMPORTANT:** If `DEEP_SESSION_ID` is in your context, you MUST pass it via
 `--session-id`. This ensures tasks work correctly after `/clear` commands.
 If it's not in your context, omit `--session-id` (fallback to env var).
 
@@ -391,7 +391,7 @@ If it's not in your context, omit `--session-id` (fallback to env var).
 4. Updates all dependencies to reflect new positions
 
 **Handle based on result:**
-- If `success == false`: Read `error` and fix the issue (common: missing/invalid SECTION_MANIFEST in index.md, no CLAUDE_SESSION_ID). Re-run until successful.
+- If `success == false`: Read `error` and fix the issue (common: missing/invalid SECTION_MANIFEST in index.md, no DEEP_SESSION_ID). Re-run until successful.
 - If `state == "complete"`: All sections already written, skip to Final Verification.
 - Otherwise: Tasks were written successfully.
 

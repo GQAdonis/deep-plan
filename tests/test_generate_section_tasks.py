@@ -129,7 +129,7 @@ END_MANIFEST -->
         assert output["tasks_written"] == 0
 
     def test_no_session_id_returns_error(self, run_script, tmp_path, sample_index_content):
-        """Should return error when no CLAUDE_SESSION_ID is available."""
+        """Should return error when no DEEP_SESSION_ID is available."""
         planning_dir = tmp_path / "planning"
         planning_dir.mkdir()
         sections_dir = planning_dir / "sections"
@@ -139,7 +139,7 @@ END_MANIFEST -->
 
         # Ensure no session ID env vars are set
         env_vars = {
-            "CLAUDE_SESSION_ID": "",
+            "DEEP_SESSION_ID": "",
             "CLAUDE_CODE_TASK_LIST_ID": "",
         }
         result = run_script(planning_dir, env_vars=env_vars)
@@ -147,12 +147,12 @@ END_MANIFEST -->
         assert result.returncode == 1
         output = json.loads(result.stdout)
         assert output["success"] is False
-        assert "CLAUDE_SESSION_ID" in output["error"]
+        assert "DEEP_SESSION_ID" in output["error"]
         assert output["tasks_written"] == 0
         assert output["task_list_source"] == "none"
 
     def test_writes_tasks_with_session_id(self, run_script, tmp_path, sample_index_content):
-        """Should write batch + section task files when CLAUDE_SESSION_ID is set."""
+        """Should write batch + section task files when DEEP_SESSION_ID is set."""
         planning_dir = tmp_path / "planning"
         planning_dir.mkdir()
         sections_dir = planning_dir / "sections"
@@ -170,7 +170,7 @@ END_MANIFEST -->
             shutil.rmtree(tasks_dir)
 
         try:
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -229,7 +229,7 @@ END_MANIFEST -->
             shutil.rmtree(tasks_dir)
 
         try:
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -269,7 +269,7 @@ END_MANIFEST -->
             shutil.rmtree(tasks_dir)
 
         try:
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -310,7 +310,7 @@ END_MANIFEST -->
             shutil.rmtree(tasks_dir)
 
         try:
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -371,7 +371,7 @@ END_MANIFEST -->
                 "blockedBy": [],
             }))
 
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -454,7 +454,7 @@ END_MANIFEST -->
             shutil.rmtree(tasks_dir)
 
         try:
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -511,7 +511,7 @@ END_MANIFEST -->
             shutil.rmtree(tasks_dir)
 
         try:
-            env_vars = {"CLAUDE_SESSION_ID": session_id}
+            env_vars = {"DEEP_SESSION_ID": session_id}
             result = run_script(planning_dir, env_vars=env_vars)
 
             assert result.returncode == 0
@@ -553,7 +553,7 @@ END_MANIFEST -->
                 shutil.rmtree(tasks_dir)
 
     def test_user_specified_task_list_id(self, run_script, tmp_path, sample_index_content):
-        """CLAUDE_CODE_TASK_LIST_ID should be preferred over CLAUDE_SESSION_ID."""
+        """CLAUDE_CODE_TASK_LIST_ID should be preferred over DEEP_SESSION_ID."""
         planning_dir = tmp_path / "planning"
         planning_dir.mkdir()
         sections_dir = planning_dir / "sections"
@@ -572,7 +572,7 @@ END_MANIFEST -->
         try:
             env_vars = {
                 "CLAUDE_CODE_TASK_LIST_ID": user_task_list_id,
-                "CLAUDE_SESSION_ID": session_id,
+                "DEEP_SESSION_ID": session_id,
             }
             result = run_script(planning_dir, env_vars=env_vars)
 

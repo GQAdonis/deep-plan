@@ -553,7 +553,7 @@ def main():
             "plugin_root": str(plugin_root),
             "error": "No task list ID available. Cannot write tasks.",
             "error_details": {
-                "cause": "Neither CLAUDE_CODE_TASK_LIST_ID nor CLAUDE_SESSION_ID is set.",
+                "cause": "Neither CLAUDE_CODE_TASK_LIST_ID nor DEEP_SESSION_ID is set.",
                 "likely_reason": "The SessionStart hook did not run or failed to capture the session ID.",
                 "troubleshooting": [
                     "1. Verify the plugin is loaded: check that /deep-plan skill is available",
