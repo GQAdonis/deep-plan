@@ -265,6 +265,8 @@ If you /compact or exit in the middle, `/deep-plan` can recover from the existin
 ```
 Then scroll to "Installed", find `deep-plan`, and click "Enable".
 
+> **Already installed `/deep-project` or `/deep-implement`?** All three plugins share a marketplace. If you've already added any one of the deep trilogy repos, just run `/plugin install deep-plan` directly — no need to add another marketplace.
+
 ### Manual Installation
 
 **Option A: Via settings.json**
